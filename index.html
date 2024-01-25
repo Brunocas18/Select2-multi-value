@@ -1,55 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" rel="stylesheet" />
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Tagging with multi-value select boxes - Select2</title>
-        <style>
-            body {
-                background-color: #f8f9fa;
-            }
-        
-            .container {
-                max-width: 600px;
-                margin: 0 auto;
-            }
-        
-            .search-label {
-                font-weight: bold;
-            }
-
-            .icon-cancelado{
-                background: url(icon-x.jpg);
-                background-size: cover; 
-                cursor: pointer;
-                float: left;
-                margin-top: 8px;
-                margin-left: 5px;
-                margin-right: 5px;
-                height: 9px;
-                width: 9px;
-            }
-
-            .selected-value{
-                background-color: aqua;
-                margin-bottom: 5px;
-            }
-
-            #select-value{
-                margin-top: 10px;
-            }
-        </style>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css" rel="stylesheet"/>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <!-- Custom css link -->
+        <link rel="stylesheet" href="./assets/css/style.css">
     </head>
     <body>
         <div class="container mt-4">
             <div class="row mb-3">
                 <div class="form-group col-md-12">
-                    <label class="search-label">Exemplo</label>
+                    <label class="search-label">Select2 unique value</label>
                     <input id="tags-unique" class="form-control" type="text" name="tags-unique"/>
                 </div>
             </div>
@@ -57,120 +21,17 @@
 
             <div class="row mt-5">
                 <div class="form-group col-md-12">
-                    <label class="search-label">Exemplo</label>
+                    <label class="search-label">Select2 multiple value</label>
                     <input id="tags-multiple" class="form-control" type="text" name="tags-multiple"/>
                 </div>
             </div>
             <div id="select-value-multiple"></div>
         </div>
 
-<script>
-initializeSelect2('tags-unique',[{id: 1, text: 'teste'}, {id: 2, text: 'teste2'}], 20, 'select-value-unique', false);
-initializeSelect2('tags-multiple',[{id: 1, text: 'test3'}, {id: 2, text: 'teste4'}], 20, 'select-value-multiple', true);
-
-function initializeSelect2(inputId, tags, maximumInputLength, valueSelected, allowMultipleTags, selectedValues) {
-  $(function() {
-    var select2Options = {
-      tags: tags,
-      maximumInputLength: maximumInputLength,
-      createSearchChoice: function(term, data) {
-        term = term.trim();
-        if (term !== '') {
-          const existingTags = data.map(function(item) {
-            return item.text.toLowerCase();
-          });
-
-          // Cria a nova tag se ela não existir
-          if (existingTags.indexOf(term.toLowerCase()) === -1) {
-            return { id: term, text: term };
-          }
-        }
-      },
-    };
-
-    //Executa a função para atualizar os valores selecionados sempre que houver uma mudança
-    $("#" + inputId).select2(select2Options).on("change", function() {
-      updateSelectedValues();
-    });
-
-    //Impedir a remoção de valores através do input
-    $("#" + inputId).on("select2-removing", function(e) {
-      e.preventDefault();
-      return false;
-    });
-
-    // Função para atualizar os valores selecionados
-    function updateSelectedValues() {
-      const selectedData = $("#" + inputId).select2("data");
-      renderSelectedValues(selectedData);
-    }
-
-    // Função para renderizar os valores selecionados na interface
-    function renderSelectedValues(data) {
-        $("#" + inputId).on("select2-selecting", function(event) {
-            var selectValues = $("#" + inputId).val();
-            /**
-             * Se allowMultipleTags for true pode selecionar mais de um valor
-             * Se allowMultipleTags for false pode selecionar apenas um valor
-             */
-            if (!allowMultipleTags && selectValues.length >= 1) {
-                event.preventDefault();// Impede a seleção se já houver um valor selecionado
-                $("#" + inputId).select2('close');//fecha o select2
-
-                alert('Apenas é possivel selecionar um valor!');
-            }
-        });
-
-        // Limpa a div existente
-        $('#' + valueSelected).empty();
-        
-        // Cria uma div para cada valor selecionado do select2
-        data.forEach(function(item) {
-          const div   = $('<div>').addClass('selected-value');
-          const icon  = $('<i>').addClass('search-remove-bt icon icon-cancelado');
-          const span  = $('<span>').text(item.text);
-
-          // Adiciona o atributo data-id com o valor do ID no span
-          span.attr('data-id', item.id);
-          div.append(icon);
-          div.append(span);
-
-          $('#' + valueSelected).append(div);
-        });
-
-        // Oculta os valores selecionados no input do Select2
-        $(".select2-search-choice").css("display", "none");
-
-        // Adiciona um evento de clique para o ícone "x" capaz de remover o valor selecionado
-        $('.search-remove-bt').on('click', function() {
-          const textToRemove = $(this).next().text();
-          const selectedData = $("#" + inputId).select2("data");
-          const itemToRemove = selectedData.find(item => item.text === textToRemove);
-
-          if (itemToRemove) {
-            const index = selectedData.indexOf(itemToRemove);
-
-            if (index > -1) {
-              selectedData.splice(index, 1);
-            }
-
-            $("#" + inputId).select2("data", selectedData);
-            $("#" + inputId).trigger('change');
-          }
-
-          $(this).parent().remove();
-        });
-    }
-
-    // Se houver valores pré-selecionados, define-os no Select2
-    if (selectedValues && selectedValues.length > 0) {
-      $("#" + inputId).select2("data", selectedValues);
-    }
-
-    // Atualiza os valores selecionados quando a página carregar
-    updateSelectedValues();
-  });
-}
-    </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        <!-- Custom js link -->
+        <script src="./assets/js/script.js"></script>
     </body>
 </html>
